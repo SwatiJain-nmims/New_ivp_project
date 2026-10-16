@@ -1,0 +1,444 @@
+    <!-- Right Sidebar: Interactive Controls for 6 Units -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title" id="sidebarPanelTitle">Unit 1 & 2 Controls</div>
+        <span class="tab-badge" id="sidebarUnitBadge">Spatial</span>
+      </div>
+
+      <div class="sidebar-content">
+        <!-- MODULE 1 CONTROLS: Spatial & Point Transformations -->
+        <div class="module-pane active" id="pane-module1">
+          <div class="control-section">
+            <div class="control-section-title">Point Intensity Operations</div>
+            <div class="control-row">
+              <label style="font-size:12px; color:var(--text-muted);">Transformation Function:</label>
+              <select id="m1_transformSelect">
+                <option value="gamma">Power-Law (Gamma) Transform</option>
+                <option value="log">Logarithmic Transformation</option>
+                <option value="piecewise">Piecewise-Linear Contrast Stretch</option>
+                <option value="hist_eq">Histogram Equalization</option>
+                <option value="distance_metric">Distance Metrics & Connectivity</option>
+              </select>
+            </div>
+
+            <!-- Gamma Sub-controls -->
+            <div id="m1_gamma_controls" class="control-row" style="margin-top:6px;">
+              <div class="control-row-header">
+                <span>Gamma ($\gamma$):</span>
+                <span class="control-value" id="m1_gamma_val">1.00</span>
+              </div>
+              <input type="range" class="slider" id="m1_gamma_slider" min="0.1" max="5.0" step="0.05" value="1.0">
+              <span style="font-size:10px; color:var(--text-dim);">Mapped to Hand Elevation ($Y$-axis)</span>
+            </div>
+
+            <!-- Log Sub-controls -->
+            <div id="m1_log_controls" class="control-row" style="display:none; margin-top:6px;">
+              <div class="control-row-header">
+                <span>Constant Scaling Factor ($c$):</span>
+                <span class="control-value" id="m1_log_c_val">1.00</span>
+              </div>
+              <input type="range" class="slider" id="m1_log_c_slider" min="0.5" max="3.0" step="0.1" value="1.0">
+            </div>
+
+            <!-- Piecewise Sub-controls -->
+            <div id="m1_piecewise_controls" style="display:none; flex-direction:column; gap:8px; margin-top:6px;">
+              <div class="control-row">
+                <div class="control-row-header">
+                  <span>Input Low Threshold ($r_1$):</span>
+                  <span class="control-value" id="m1_r1_val">50</span>
+                </div>
+                <input type="range" class="slider" id="m1_r1_slider" min="0" max="255" value="50">
+              </div>
+              <div class="control-row">
+                <div class="control-row-header">
+                  <span>Output Low Level ($s_1$):</span>
+                  <span class="control-value" id="m1_s1_val">10</span>
+                </div>
+                <input type="range" class="slider" id="m1_s1_slider" min="0" max="255" value="10">
+              </div>
+              <div class="control-row">
+                <div class="control-row-header">
+                  <span>Input High Threshold ($r_2$):</span>
+                  <span class="control-value" id="m1_r2_val">200</span>
+                </div>
+                <input type="range" class="slider" id="m1_r2_slider" min="0" max="255" value="200">
+              </div>
+              <div class="control-row">
+                <div class="control-row-header">
+                  <span>Output High Level ($s_2$):</span>
+                  <span class="control-value" id="m1_s2_val">245</span>
+                </div>
+                <input type="range" class="slider" id="m1_s2_slider" min="0" max="255" value="245">
+              </div>
+              <span style="font-size:10px; color:var(--text-dim);">(Mapped to Thumb-Index Pinch Distance)</span>
+            </div>
+
+            <!-- Distance Metric Sub-controls -->
+            <div id="m1_distance_controls" style="display:none; flex-direction:column; gap:8px; margin-top:6px;">
+              <div class="info-callout">
+                Click on the input canvas to place <code>P1</code> and <code>P2</code>, or point with index finger.
+              </div>
+              <div style="font-family:var(--font-mono); font-size:12px; display:flex; flex-direction:column; gap:4px;">
+                <div>P1: <span id="m1_p1_coord" style="color:var(--accent-cyan);">(40, 60)</span></div>
+                <div>P2: <span id="m1_p2_coord" style="color:var(--accent-purple);">(180, 200)</span></div>
+                <div style="border-top:1px solid var(--border-color); padding-top:4px; margin-top:2px;">
+                  Euclidean ($D_E$): <span id="m1_dist_euclid" style="color:var(--accent-emerald); font-weight:600;">197.99</span>
+                </div>
+                <div>City-Block ($D_4$): <span id="m1_dist_city" style="color:var(--accent-amber); font-weight:600;">280</span></div>
+                <div>Chessboard ($D_8$): <span id="m1_dist_chess" style="color:var(--accent-rose); font-weight:600;">140</span></div>
+                <div>$m$-Path Adjacency: <span id="m1_m_path_status" style="color:var(--accent-cyan);">Valid (Mixed Connected)</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODULE 2 CONTROLS: Spatial Filtering & Smoothing/Sharpening -->
+        <div class="module-pane" id="pane-module2">
+          <div class="control-section">
+            <div class="control-section-title">2D Discrete Spatial Convolution</div>
+            <div class="control-row">
+              <label style="font-size:12px; color:var(--text-muted);">Filter Class:</label>
+              <select id="m2_filterSelect">
+                <option value="gaussian">Gaussian Smoothing Filter</option>
+                <option value="box_blur">Weighted / Box Mean Filter</option>
+                <option value="median">Non-Linear Median Noise Filter</option>
+                <option value="min_max">Min / Max Morphological Spatial Filter</option>
+                <option value="laplacian">Laplacian Sharpening Operator ($\nabla^2 f$)</option>
+                <option value="unsharp">Unsharp Masking & High-Boost ($A \ge 1$)</option>
+                <option value="sobel">Sobel Gradient Operator (Magnitude & $\theta$)</option>
+                <option value="prewitt">Prewitt Edge Operator</option>
+                <option value="roberts">Roberts Cross Gradient Operator</option>
+                <option value="log_filter">Laplacian of Gaussian (LoG)</option>
+              </select>
+            </div>
+
+            <!-- Kernel Size -->
+            <div class="control-row" id="m2_kernel_row">
+              <div class="control-row-header">
+                <span>Kernel Size ($N \times N$):</span>
+                <span class="control-value" id="m2_kernel_val">3 x 3</span>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-active" data-ksize="3">3 x 3</button>
+                <button class="btn" data-ksize="5">5 x 5</button>
+                <button class="btn" data-ksize="7">7 x 7</button>
+              </div>
+            </div>
+
+            <!-- High-Boost A parameter -->
+            <div id="m2_highboost_controls" class="control-row" style="display:none;">
+              <div class="control-row-header">
+                <span>Boost Factor ($A$):</span>
+                <span class="control-value" id="m2_boost_val">1.50</span>
+              </div>
+              <input type="range" class="slider" id="m2_boost_slider" min="1.0" max="3.0" step="0.1" value="1.5">
+            </div>
+
+            <!-- Min/Max Mode -->
+            <div id="m2_minmax_controls" class="control-row" style="display:none;">
+              <label style="font-size:12px; color:var(--text-muted);">Operator:</label>
+              <div class="btn-group">
+                <button class="btn btn-active" data-minmax="min">Min (Erosion)</button>
+                <button class="btn" data-minmax="max">Max (Dilation)</button>
+              </div>
+            </div>
+
+            <!-- Edge display mode -->
+            <div id="m2_edge_display_row" class="control-row" style="display:none;">
+              <label style="font-size:12px; color:var(--text-muted);">Gradient Output View:</label>
+              <select id="m2_edgeModeSelect">
+                <option value="magnitude">Gradient Magnitude $|G| = \sqrt{G_x^2 + G_y^2}$</option>
+                <option value="gx">Horizontal Derivative $G_x$</option>
+                <option value="gy">Vertical Derivative $G_y$</option>
+                <option value="direction">Gradient Direction Angle $\theta$ (Color Coded)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODULE 3 CONTROLS: Frequency Domain Filtering -->
+        <div class="module-pane" id="pane-module3">
+          <div class="control-section">
+            <div class="control-section-title">2D Frequency Domain (2D FFT / DFT)</div>
+            <div class="control-row">
+              <label style="font-size:12px; color:var(--text-muted);">Filter Transfer Function $H(u,v)$:</label>
+              <select id="m3_filterSelect">
+                <option value="glpf">Gaussian Low-Pass Filter (GLPF)</option>
+                <option value="ghpf">Gaussian High-Pass Filter (GHPF)</option>
+                <option value="ilpf">Ideal Low-Pass Filter (ILPF)</option>
+                <option value="ihpf">Ideal High-Pass Filter (IHPF)</option>
+                <option value="blpf">Butterworth Low-Pass Filter (BLPF)</option>
+                <option value="bhpf">Butterworth High-Pass Filter (BHPF)</option>
+                <option value="notch_reject">Notch / Band-Reject Periodic Noise Filter</option>
+                <option value="notch_pass">Notch / Band-Pass Periodic Filter</option>
+                <option value="spectrum_only">Fourier Magnitude Spectrum View $\log(1+|F|)$</option>
+              </select>
+            </div>
+
+            <div class="control-row">
+              <div class="control-row-header">
+                <span>Cutoff Frequency ($D_0$):</span>
+                <span class="control-value" id="m3_d0_val">45 px</span>
+              </div>
+              <input type="range" class="slider" id="m3_d0_slider" min="5" max="120" value="45">
+              <span style="font-size:10px; color:var(--text-dim);">Mapped to Hand Elevation ($Y$-axis)</span>
+            </div>
+
+            <!-- Butterworth order n -->
+            <div class="control-row" id="m3_butterworth_row" style="display:none;">
+              <div class="control-row-header">
+                <span>Butterworth Order ($n$):</span>
+                <span class="control-value" id="m3_order_val">2</span>
+              </div>
+              <input type="range" class="slider" id="m3_order_slider" min="1" max="8" value="2">
+            </div>
+
+            <!-- Notch parameters -->
+            <div id="m3_notch_row" style="display:none; flex-direction:column; gap:6px;">
+              <div class="control-row">
+                <div class="control-row-header">
+                  <span>Notch Center Radius ($u_0, v_0$):</span>
+                  <span class="control-value" id="m3_notch_r_val">50 px</span>
+                </div>
+                <input type="range" class="slider" id="m3_notch_r_slider" min="10" max="100" value="50">
+              </div>
+              <div class="control-row">
+                <div class="control-row-header">
+                  <span>Notch Bandwidth ($W$):</span>
+                  <span class="control-value" id="m3_notch_w_val">10 px</span>
+                </div>
+                <input type="range" class="slider" id="m3_notch_w_slider" min="2" max="30" value="10">
+              </div>
+            </div>
+
+            <div class="control-row">
+              <label style="font-size:12px; color:var(--text-muted);">Display Target:</label>
+              <div class="btn-group">
+                <button class="btn btn-active" data-m3view="spatial">Spatial Output $g(x,y)$</button>
+                <button class="btn" data-m3view="spectrum">Spectrum $|F(u,v)|$</button>
+                <button class="btn" data-m3view="filter">Filter $H(u,v)$</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODULE 4 CONTROLS: Mathematical Morphology -->
+        <div class="module-pane" id="pane-module4">
+          <div class="control-section">
+            <div class="control-section-title">Morphological Operator Engine</div>
+            <div class="control-row">
+              <label style="font-size:12px; color:var(--text-muted);">Operation:</label>
+              <select id="m4_opSelect">
+                <option value="dilation">Dilation $(f \oplus b)$</option>
+                <option value="erosion">Erosion $(f \ominus b)$</option>
+                <option value="opening">Opening $(f \circ b)$</option>
+                <option value="closing">Closing $(f \bullet b)$</option>
+                <option value="boundary">Boundary Extraction $\beta(A) = A - (A \ominus B)$</option>
+                <option value="hit_or_miss">Hit-or-Miss Transformation ($A \circledast B$)</option>
+                <option value="thinning">Morphological Thinning & Skeletonization</option>
+                <option value="thickening">Morphological Thickening</option>
+                <option value="hole_fill">Morphological Hole Filling</option>
+              </select>
+            </div>
+
+            <div class="control-row">
+              <label style="font-size:12px; color:var(--text-muted);">Structuring Element Shape ($B$):</label>
+              <div class="btn-group" id="m4_shape_group">
+                <button class="btn btn-active" data-shape="disk">Disk / Circle</button>
+                <button class="btn" data-shape="square">Square</button>
+                <button class="btn" data-shape="cross">Cross (+)</button>
+              </div>
+            </div>
+
+            <div class="control-row">
+              <div class="control-row-header">
+                <span>Structuring Element Radius ($r$):</span>
+                <span class="control-value" id="m4_radius_val">2 px</span>
+              </div>
+              <input type="range" class="slider" id="m4_radius_slider" min="1" max="8" value="2">
+              <span style="font-size:10px; color:var(--text-dim);">Mapped to Hand Elevation ($Y$-axis)</span>
+            </div>
+
+            <div class="control-row">
+              <div class="control-row-header">
+                <span>Binarization Threshold (for binary morph):</span>
+                <span class="control-value" id="m4_bin_thresh_val">128</span>
+              </div>
+              <input type="range" class="slider" id="m4_bin_thresh_slider" min="10" max="245" value="128">
+            </div>
+          </div>
+        </div>
+
+        <!-- MODULE 5 CONTROLS: Image Segmentation & Thresholding -->
+        <div class="module-pane" id="pane-module5">
+          <div class="control-section">
+            <div class="control-section-title">Segmentation Algorithms</div>
+            <div class="control-row">
+              <label style="font-size:12px; color:var(--text-muted);">Segmentation Technique:</label>
+              <select id="m5_segSelect">
+                <option value="otsu">Otsu's Global Optimum Thresholding</option>
+                <option value="adaptive">Adaptive Local Thresholding (Mean & $\sigma$)</option>
+                <option value="region_grow">Region Growing from Seed $(x_0, y_0)$</option>
+                <option value="split_merge">Region Splitting & Merging (Quadtree)</option>
+                <option value="watershed">Marker-Driven Watershed Segmentation</option>
+              </select>
+            </div>
+
+            <!-- Otsu Info Box -->
+            <div id="m5_otsu_info" class="info-callout">
+              Optimal threshold $k^*$ calculated via between-class variance maximization:
+              <div style="font-family:var(--font-mono); margin-top:4px; color:var(--accent-cyan);">
+                $k^* = \arg\max \sigma_b^2(k) = $ <span id="m5_otsu_k_val" style="font-weight:700;">--</span>
+              </div>
+            </div>
+
+            <!-- Adaptive threshold sub-controls -->
+            <div id="m5_adaptive_controls" style="display:none; flex-direction:column; gap:6px;">
+              <div class="control-row">
+                <div class="control-row-header">
+                  <span>Window Size ($W \times W$):</span>
+                  <span class="control-value" id="m5_adap_w_val">15</span>
+                </div>
+                <input type="range" class="slider" id="m5_adap_w_slider" min="5" max="45" step="2" value="15">
+              </div>
+              <div class="control-row">
+                <div class="control-row-header">
+                  <span>Offset Constant ($C$):</span>
+                  <span class="control-value" id="m5_adap_c_val">5</span>
+                </div>
+                <input type="range" class="slider" id="m5_adap_c_slider" min="-20" max="30" value="5">
+              </div>
+            </div>
+
+            <!-- Region Growing sub-controls -->
+            <div id="m5_regiongrow_controls" style="display:none; flex-direction:column; gap:6px;">
+              <div class="control-row">
+                <div class="control-row-header">
+                  <span>Seed Coordinate $(x_0, y_0)$:</span>
+                  <span class="control-value" id="m5_seed_coord">(128, 128)</span>
+                </div>
+                <span style="font-size:10px; color:var(--text-dim);">Move by pointing index finger at canvas or clicking</span>
+              </div>
+              <div class="control-row">
+                <div class="control-row-header">
+                  <span>Tolerance Threshold ($T = |\Delta I|$):</span>
+                  <span class="control-value" id="m5_grow_tol_val">25</span>
+                </div>
+                <input type="range" class="slider" id="m5_grow_tol_slider" min="2" max="100" value="25">
+              </div>
+            </div>
+
+            <!-- Split & Merge sub-controls -->
+            <div id="m5_splitmerge_controls" style="display:none; flex-direction:column; gap:6px;">
+              <div class="control-row">
+                <div class="control-row-header">
+                  <span>Homogeneity Max StdDev ($\sigma_{\max}$):</span>
+                  <span class="control-value" id="m5_homo_val">12</span>
+                </div>
+                <input type="range" class="slider" id="m5_homo_slider" min="4" max="40" value="12">
+              </div>
+              <div class="control-row">
+                <div class="control-row-header">
+                  <span>Min Block Size ($4 \times 4$ to $32 \times 32$):</span>
+                  <span class="control-value" id="m5_block_val">8</span>
+                </div>
+                <input type="range" class="slider" id="m5_block_slider" min="4" max="32" step="4" value="8">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODULE 6 CONTROLS: Color Image Processing -->
+        <div class="module-pane" id="pane-module6">
+          <div class="control-section">
+            <div class="control-section-title">Color Space Transformations</div>
+            <div class="control-row">
+              <label style="font-size:12px; color:var(--text-muted);">Color Operation:</label>
+              <select id="m6_colorSelect">
+                <option value="hsi_convert">RGB $\leftrightarrow$ HSI (Hue, Saturation, Intensity)</option>
+                <option value="ycbcr_convert">RGB $\leftrightarrow$ YCbCr / YUV</option>
+                <option value="cmyk_convert">RGB $\leftrightarrow$ CMYK Subtractive Space</option>
+                <option value="color_slice">HSI Color & Intensity Slicing</option>
+                <option value="color_edge">Color Edge Detection (Vector Gradient)</option>
+                <option value="pseudo_rainbow">Pseudo-Coloring (Jet / Rainbow LUT)</option>
+              </select>
+            </div>
+
+            <!-- Color Slicing Parameters -->
+            <div id="m6_slice_controls" style="display:none; flex-direction:column; gap:6px;">
+              <div class="control-row">
+                <div class="control-row-header">
+                  <span>Center Target Hue ($H_0$):</span>
+                  <span class="control-value" id="m6_slice_hue_val">30&deg;</span>
+                </div>
+                <input type="range" class="slider" id="m6_slice_hue_slider" min="0" max="360" value="30">
+              </div>
+              <div class="control-row">
+                <div class="control-row-header">
+                  <span>Hue Tolerance ($\Delta H$):</span>
+                  <span class="control-value" id="m6_slice_tol_val">35&deg;</span>
+                </div>
+                <input type="range" class="slider" id="m6_slice_tol_slider" min="5" max="90" value="35">
+              </div>
+            </div>
+
+            <!-- Channel Isolator -->
+            <div id="m6_channel_controls" class="control-row">
+              <label style="font-size:12px; color:var(--text-muted);">Channel Viewer:</label>
+              <div class="btn-group" id="m6_channel_group">
+                <button class="btn btn-active" data-channel="composite">Composite</button>
+                <button class="btn" data-channel="ch1">Ch 1 (H / Y / C)</button>
+                <button class="btn" data-channel="ch2">Ch 2 (S / Cb / M)</button>
+                <button class="btn" data-channel="ch3">Ch 3 (I / Cr / Y)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WEBCAM TRACKING & GESTURE MONITOR -->
+        <div class="control-section">
+          <div class="control-section-title">
+            <span>MediaPipe Landmark Coordinates</span>
+            <span style="font-size:10px; color:var(--accent-emerald);">HANDS API</span>
+          </div>
+
+          <!-- Video preview & landmark canvas -->
+          <div class="webcam-preview-box">
+            <video id="webcamVideo" playsinline autoplay muted></video>
+            <canvas id="webcamOverlayCanvas" width="320" height="240"></canvas>
+            <div id="camPlaceholder" style="position:absolute; color:var(--text-dim); font-size:11px; text-align:center; padding:10px;">
+              Webcam offline.<br>Click "Start Webcam" or run in Mouse Simulation Mode.
+            </div>
+          </div>
+
+          <!-- Gesture Mapping Reference Guide -->
+          <div style="font-size:11px; display:flex; flex-direction:column; gap:4px; color:var(--text-muted); margin-top:4px;">
+            <div style="display:flex; justify-content:space-between;">
+              <span>✋ <b>Open Palm</b></span>
+              <span style="color:var(--text-dim);">Live Video / Pass-through</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span>✊ <b>Fist</b></span>
+              <span style="color:var(--accent-amber);">Freeze & Execute Unit Pipeline</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span>👆 <b>Index Point</b></span>
+              <span style="color:var(--accent-cyan);">Set Seed / Measure Point</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span>✌️ <b>Peace Sign ($V$)</b></span>
+              <span style="color:var(--accent-purple);">Toggle Split Comparison View</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span>🤏 <b>Pinch (Thumb-Index)</b></span>
+              <span style="color:var(--accent-rose);">Dynamic Contrast / Threshold</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span>↕️ <b>Fingertip Elevation</b></span>
+              <span style="color:var(--accent-emerald);">Adjust Active Parameter ($Y$-axis)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>

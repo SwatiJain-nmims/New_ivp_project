@@ -1,0 +1,184 @@
+<body>
+  <!-- Header Bar -->
+  <header>
+    <div class="brand-group">
+      <div class="brand-logo">DIP</div>
+      <div>
+        <div class="brand-title">Interactive Touchless DIP Laboratory & Diagnostic Suite</div>
+        <div class="brand-subtitle">Units 1–7 Mathematical DIP Curriculum & MediaPipe Hand Tracking</div>
+      </div>
+    </div>
+    <div class="header-controls">
+      <div class="status-badge" id="cameraStatusBadge">
+        <div class="status-dot"></div>
+        <span id="cameraStatusText">MediaPipe Ready</span>
+      </div>
+      <button class="btn" id="btnToggleCam">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        <span id="btnCamText">Start Webcam</span>
+      </button>
+      <button class="btn" id="btnToggleViewMode">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/></svg>
+        <span id="viewModeText">Split View</span>
+      </button>
+      <button class="btn btn-primary" id="btnResetAll">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        Reset Pipeline
+      </button>
+    </div>
+  </header>
+
+  <!-- Tabbed Navigation Bar -->
+  <nav class="tab-bar" id="moduleTabBar">
+    <button class="tab-btn active" data-tab="module1">
+      <span class="tab-badge">U1-2</span>
+      <span>Spatial & Point Transformations</span>
+    </button>
+    <button class="tab-btn" data-tab="module2">
+      <span class="tab-badge">U2,5</span>
+      <span>Spatial Filtering & Convolution</span>
+    </button>
+    <button class="tab-btn" data-tab="module3">
+      <span class="tab-badge">U3</span>
+      <span>Frequency Domain (2D FFT / DFT)</span>
+    </button>
+    <button class="tab-btn" data-tab="module4">
+      <span class="tab-badge">U4</span>
+      <span>Mathematical Morphology</span>
+    </button>
+    <button class="tab-btn" data-tab="module5">
+      <span class="tab-badge">U6</span>
+      <span>Image Segmentation & Thresholding</span>
+    </button>
+    <button class="tab-btn" data-tab="module6">
+      <span class="tab-badge">U7</span>
+      <span>Color Image Processing</span>
+    </button>
+  </nav>
+
+  <!-- Main Workspace -->
+  <div class="workspace">
+    <!-- Left Dual Canvas & Analysis Area -->
+    <main class="viewer-area">
+      <!-- Toolbar with real-time metrics -->
+      <div class="viewer-toolbar">
+        <div class="metrics-bar">
+          <div class="metric-item">
+            <span class="metric-label">FPS:</span>
+            <span class="metric-value" id="fpsMetric">60.0</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Processing Time:</span>
+            <span class="metric-value" id="msMetric">0.00 ms</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Resolution:</span>
+            <span class="metric-value" id="resMetric">256 x 256</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Gesture State:</span>
+            <span class="metric-value" id="gestureMetric" style="color:var(--accent-emerald);">Open Palm</span>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px;">
+          <label style="font-size:12px; color:var(--text-muted);">Source Image:</label>
+          <select id="imagePresetSelect" style="padding:4px 8px; font-size:12px;">
+            <option value="medical_phantom">Synthetic Medical Phantom (Brain & Lesions)</option>
+            <option value="xray_chest">Clinical Chest X-Ray Specimen</option>
+            <option value="retinal_scan">Retinal Vessel Specimen</option>
+            <option value="geometric_shapes">Morphological Test Shapes</option>
+            <option value="periodic_noise">Sinusoidal Periodic Noise Specimen</option>
+            <option value="color_slices">Color Space Calibration Chart</option>
+          </select>
+          <input type="file" id="fileUploadInput" accept="image/*" style="display:none;">
+          <button class="btn" id="btnUploadImage" style="padding:4px 8px; font-size:12px;">Upload File</button>
+        </div>
+      </div>
+
+      <!-- Canvases Container (Dual View / Split Slider) -->
+      <div class="canvases-container" id="canvasesContainer">
+        <!-- Input Canvas Card -->
+        <div class="canvas-card" id="inputCanvasCard">
+          <div class="canvas-header">
+            <span>Original Input Image $f(x,y)$</span>
+            <span id="inputDimTag" style="font-family:var(--font-mono); font-size:10px; color:var(--text-dim);">256 x 256</span>
+          </div>
+          <div class="canvas-viewport" id="inputViewport">
+            <canvas id="inputCanvas" width="256" height="256"></canvas>
+            <canvas id="inputOverlayCanvas" class="overlay-canvas" width="256" height="256"></canvas>
+          </div>
+        </div>
+
+        <!-- Output Canvas Card -->
+        <div class="canvas-card" id="outputCanvasCard">
+          <div class="canvas-header">
+            <span id="outputCanvasTitle">Processed Output $g(x,y)$</span>
+            <span id="activeOpBadge" style="color:var(--accent-cyan); font-family:var(--font-mono); font-size:10px;">IDLE</span>
+          </div>
+          <div class="canvas-viewport" id="outputViewport">
+            <canvas id="outputCanvas" width="256" height="256"></canvas>
+            <canvas id="outputOverlayCanvas" class="overlay-canvas" width="256" height="256"></canvas>
+          </div>
+        </div>
+
+        <!-- Interactive Split Slider View (hidden by default) -->
+        <div class="split-slider-container" id="splitSliderContainer">
+          <div class="canvas-viewport" style="width:100%; height:100%;">
+            <canvas id="splitBaseCanvas" width="256" height="256"></canvas>
+            <div id="splitClippedWrapper" style="position:absolute; top:0; left:0; width:50%; height:100%; overflow:hidden;">
+              <canvas id="splitOverlayCanvas" width="256" height="256"></canvas>
+            </div>
+            <div class="split-slider-divider" id="splitDivider" style="left:50%;">
+              <div class="split-slider-handle">⮂⮃</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Panel: Real-Time Histograms & Dynamic KaTeX Formula Display -->
+      <div class="viewer-bottom-panel">
+        <div class="histograms-card">
+          <div class="histograms-header">
+            <span>Live Intensity Histograms & PDF</span>
+            <div style="display:flex; gap:10px; font-size:10px; font-family:var(--font-mono);">
+              <span style="color:var(--accent-purple);">■ Input</span>
+              <span style="color:var(--accent-cyan);">■ Processed</span>
+            </div>
+          </div>
+          <div class="histograms-canvases">
+            <div class="hist-canvas-box">
+              <span>Input Image Histogram $h(r_k)$</span>
+              <canvas id="inputHistCanvas" width="256" height="110"></canvas>
+            </div>
+            <div class="hist-canvas-box">
+              <span>Processed Histogram $h(s_k)$</span>
+              <canvas id="outputHistCanvas" width="256" height="110"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="formula-card">
+          <div class="formula-header">
+            <span>Active Mathematical Formulation & Academic Specification</span>
+            <span id="formulaUnitTag" style="font-family:var(--font-mono); font-size:11px; color:var(--accent-cyan);">UNIT 1 & 2</span>
+          </div>
+          <div class="formula-math-display" id="formulaMathBox">
+            <!-- KaTeX rendered equations injected dynamically -->
+            $$s = c \cdot r^\gamma$$
+          </div>
+          <div class="formula-notes" id="formulaNotesBox">
+            Power-Law (Gamma) transformation: $r$ is normalized intensity $\in [0,1]$, $\gamma$ controls dynamic expansion/compression.
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Floating Gesture HUD Indicator -->
+    <div class="gesture-hud" id="gestureHud">
+      <div class="gesture-icon-badge" id="gestureIconBadge">✋</div>
+      <div class="gesture-info">
+        <div class="gesture-name" id="gestureHudName">Open Palm: Live Stream Mode</div>
+        <div class="gesture-mapping" id="gestureHudDesc">Tracking 21 3D Landmarks • Point with index finger to seed</div>
+      </div>
+    </div>
